@@ -124,8 +124,8 @@ print(db_classes_2007)
 dbh_summary_2007 <- trees_data %>%
   filter(year == 2007) %>%  # Filter for 2007
   summarize(
-    mean_DBH = mean(rad_ib_cm, na.rm = TRUE), 
-    sd_DBH = sd(rad_ib_cm, na.rm = TRUE)  
+    mean_DBH = mean(rad_ib_cm, na.rm = TRUE),
+    sd_DBH = sd(rad_ib_cm, na.rm = TRUE)
   )
 print(dbh_summary_2007)
 # Answer: mean_DBH = 80.5, sd_DBH = 30.7
@@ -134,10 +134,10 @@ print(dbh_summary_2007)
 
 # Question 18: Compute the per species mean tree age using only those ages recorded in 2003. Identify the three species with the oldest mean age.
 mean_age_species_2003 <- trees_data %>%
-  filter(year == 2003) %>% 
-  group_by(species) %>%  
-  summarize(mean_age = mean(age, na.rm = TRUE)) %>% 
-  arrange(desc(mean_age)) %>%  
+  filter(year == 2003) %>%
+  group_by(species) %>%
+  summarize(mean_age = mean(age, na.rm = TRUE)) %>%
+  arrange(desc(mean_age)) %>%
   slice_head(n = 3)  # Get the top 3 species with the oldest mean age
 print(mean_age_species_2003)
 # Answer: THOC (127), FRNI (83.1), PIST (73.3)
@@ -145,9 +145,9 @@ print(mean_age_species_2003)
 # Question 19: In a single summarize call, find the number of unique years with records in the data set along with the first and last year recorded?
 year_summary <- trees_data %>%
   summarize(
-    unique_years = n_distinct(year),  
-    first_year = min(year),  
-    last_year = max(year)  
+    unique_years = n_distinct(year),
+    first_year = min(year),
+    last_year = max(year)
   )
 print(year_summary)
 # Answer: Unique_years = 111, first_year = 1897, last_year = 2007
@@ -156,11 +156,11 @@ print(year_summary)
 stands_with_largest_years <- trees_data %>%
   group_by(stand) %>%  # Group by stand
   summarize(unique_years = n_distinct(year)) %>%
-  filter(unique_years == max(unique_years))  
+  filter(unique_years == max(unique_years))
 print(stands_with_largest_years)
 # Answer: A1, D1, D2, D3, F1
 
-# Final Question: Use a combination of dplyr verbs to compute these values and report the 3 species with the fastest growth, and the 3 species with the slowest growth. 
+# Final Question: Use a combination of dplyr verbs to compute these values and report the 3 species with the fastest growth, and the 3 species with the slowest growth.
 # Step 1: Compute the annual growth rate for each tree using lag()
 trees_data <- trees_data %>%
   group_by(treeID) %>%  # Group by treeID

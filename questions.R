@@ -98,7 +98,7 @@ mean_BA_POTR_2007 <- trees_data %>%
   filter(species == "POTR", year == 2007) %>%
   summarise(mean_BA = mean(BA_m2, na.rm = TRUE))
 print(mean_BA_POTR_2007)
-# Answer: Mean BA_m2 = 3.70
+# Answer: Mean BA_m2 = 3.70cm
 
 # Question 15: Use count (see ?count) to determine how many records are from estabilshed trees?
 trees_data <- trees_data %>%
@@ -108,7 +108,7 @@ count_established_trees <- trees_data %>%
   count(established)
 # View the result
 print(count_established_trees)
-# Answer: True(age > 5) = 122503, False (less than or = to 5) = 8883
+# Answer: True = 122503, False = 8883
 
 # Question 16: Classify trees into DBH_class and count each class in 2007
 trees_data <- trees_data %>%
@@ -124,14 +124,79 @@ print(db_classes_2007)
 dbh_summary_2007 <- trees_data %>%
   filter(year == 2007) %>%  # Filter for 2007
   summarize(
-    mean_DBH = mean(rad_ib_cm, na.rm = TRUE),  # Mean DBH in cm
-    sd_DBH = sd(rad_ib_cm, na.rm = TRUE)  # Standard deviation of DBH in cm
+    mean_DBH = mean(rad_ib_cm, na.rm = TRUE),
+    sd_DBH = sd(rad_ib_cm, na.rm = TRUE)
   )
-
-# View the summary statistics
 print(dbh_summary_2007)
+# Answer: mean_DBH = 80.5, sd_DBH = 30.7
+# Mean DBH -> avg. diameter at breast height in cm for trees in 2007. Mean shows central tendency.
+# Standard Deviation of DBH -> measure of spread of DBH values in 2007
 
+# Question 18: Compute the per species mean tree age using only those ages recorded in 2003. Identify the three species with the oldest mean age.
+mean_age_species_2003 <- trees_data %>%
+  filter(year == 2003) %>%
+  group_by(species) %>%
+  summarize(mean_age = mean(age, na.rm = TRUE)) %>%
+  arrange(desc(mean_age)) %>%
+  slice_head(n = 3)  # Get the top 3 species with the oldest mean age
+print(mean_age_species_2003)
+# Answer: THOC (127), FRNI (83.1), PIST (73.3)
 
+# Question 19: In a single summarize call, find the number of unique years with records in the data set along with the first and last year recorded?
+year_summary <- trees_data %>%
+  summarize(
+    unique_years = n_distinct(year),
+    first_year = min(year),
+    last_year = max(year)
+  )
+print(year_summary)
+# Answer: Unique_years = 111, first_year = 1897, last_year = 2007
+
+# Question 20: Determine the stands with the largest number of unique years recorded. Report all stands with largest (or tied with the largest) temporal record.
+stands_with_largest_years <- trees_data %>%
+  group_by(stand) %>%  # Group by stand
+  summarize(unique_years = n_distinct(year)) %>%
+  filter(unique_years == max(unique_years))
+print(stands_with_largest_years)
+# Answer: A1, D1, D2, D3, F1
+
+# Final Question: Use a combination of dplyr verbs to compute these values and report the 3 species with the fastest growth, and the 3 species with the slowest growth.
+# Step 1: Compute the annual growth rate for each tree using lag()
+trees_data <- trees_data %>%
+  group_by(treeID) %>%  # Group by treeID
+  mutate(
+    growth_rate = rad_ib_cm - lag(rad_ib_cm),  # Compute annual growth by subtracting previous year radius
+    years_recorded = n()  # Count the number of years recorded for each tree
+  ) %>%
+  ungroup()  # Ungroup after mutation
+# Step 2: Filter out trees with less than 10 years of growth
+trees_with_min_growth <- trees_data %>%
+  filter(years_recorded >= 10)
+# Step 3: Compute the total growth, average growth rate, and standard deviation of growth by species
+growth_summary <- trees_with_min_growth %>%
+  group_by(species) %>%
+  summarize(
+    total_growth = sum(growth_rate, na.rm = TRUE),  # Sum of growth rates
+    avg_growth = mean(growth_rate, na.rm = TRUE),   # Average growth rate
+    sd_growth = sd(growth_rate, na.rm = TRUE),      # Standard deviation of growth rates
+    .groups = "drop"
+  )
+# Step 4: Identify the 3 species with the fastest and slowest growth
+fastest_growth_species <- growth_summary %>%
+  arrange(desc(avg_growth)) %>%
+  head(3)  # Get top 3 fastest-growing species
+slowest_growth_species <- growth_summary %>%
+  arrange(avg_growth) %>%
+  head(3)  # Get top 3 slowest-growing species
+print("Fastest Growing Species:")
+print(fastest_growth_species)
+# Answer: PIRE, POTR, PIBA
+print("Slowest Growing Species:")
+print(slowest_growth_species)
+# Answer: LALA, THOC, QURU
+
+dir.create("images")
+# Red Pine "Pinus Resinosa" Image
 
 
 
